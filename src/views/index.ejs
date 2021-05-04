@@ -5,17 +5,85 @@
   <title>
     <%= title %>
   </title>
-  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+  <link rel='stylesheet' href='/css/style.css' />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://cdn.socket.io/3.1.3/socket.io.min.js"
+          integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh"
+          crossorigin="anonymous"></script>
+
 </head>
 
-<body>
-  <h1>
-    <%= title %>
-  </h1>
-  <p>Welcome to <%= title %>
-  </p>
+<body ng-app="app">
+  <header class="bg-primary text-white p-2">
+    <h1 class="h4">
+      <%= title %>
+    </h1>
+  </header>
+  <div class="container-fluid my-2" ng-controller="home as self">
 
-  <%=deals %>
+    <table class="table table-sm table-striped table-hover">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Symbol</th>
+
+          <th>last 24</th>
+          <th>vol 24</th>
+          <th>deal 24</th>
+
+          <th>last 2H</th>
+          <th>volume 2H</th>
+          <th>deal 2H</th>
+
+          <th>last 1H</th>
+          <th>volume 1H</th>
+          <th>deal 1H</th>
+
+          <th>last 30M</th>
+          <th>volume 30M</th>
+          <th>deal 30M</th>
+          
+          <th>last 15M</th>
+          <th>volume 15M</th>
+          <th>deal 15M</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="symbol in self.symbols track by $index">
+          <td ng-bind="$index"></td>
+          <td ng-bind="symbol"></td>
+          <td ng-bind="self.items[symbol].last86400"></td>
+          <td ng-bind="self.items[symbol].volume86400"></td>
+          <td ng-bind="self.items[symbol].deal86400"></td>
+
+          <td ng-bind="self.items[symbol].last7200"></td>
+          <td ng-bind="self.items[symbol].volume7200"></td>
+          <td ng-bind="self.items[symbol].deal7200"></td>
+
+          <td ng-bind="self.items[symbol].last3600"></td>
+          <td ng-bind="self.items[symbol].volume3600"></td>
+          <td ng-bind="self.items[symbol].deal3600"></td>
+          
+          <td ng-bind="self.items[symbol].last1200"></td>
+          <td ng-bind="self.items[symbol].volume1200"></td>
+          <td ng-bind="self.items[symbol].deal1200"></td>
+
+          <td ng-bind="self.items[symbol].last900"></td>
+          <td ng-bind="self.items[symbol].volume900"></td>
+          <td ng-bind="self.items[symbol].deal900"></td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <script src="/ng/app.js"></script>
+  <script src="/ng/home/home.js"></script>
 </body>
 
 </html>
