@@ -1,3 +1,39 @@
-body{
-    font-size: 12px;
+body {
+  font-size: 12px;
+  font-family: "Ubuntu", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  height: 100%;
+}
+
+.form-control {
+  font-size: 13px;
+}
+
+body,
+td,
+th,
+span,
+strong,
+div,
+p {
+  color: #333;
+}
+
+th {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  cursor: pointer;
+  background: #dc3545 !important;
+  color: #fff;
+  font-weight: normal;
+}
+
+.symbol-name {
+  font-size: 13px;
+  font-weight: bold;
+}
+.symbol-name span {
+  color: #999;
+  font-size: 12px;
+  font-weight: normal;
 }

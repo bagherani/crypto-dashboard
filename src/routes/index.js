@@ -6,7 +6,6 @@ var io = new ServerSocket({
 io.listen(3004);
 
 var express = require('express');
-const { querySymbol } = require('../services/coinex');
 var router = express.Router();
 const coinex = require('../services/coinex')
 
@@ -38,28 +37,36 @@ coinex.on('connected', () => {
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 1200);
-      }, 500);
+      }, 300);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 3600);
-      }, 1000);
+      }, 600);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 7200);
-      }, 1500);
+      }, 900);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 86400);
-      }, 2000);
+      }, 1200);
+
+
+      setTimeout(() => {
+        coinex.queryDeals(symbol);
+      }, 1200);
     }
 
     counter++;
     if (counter > symbols.length)
       counter = 0;
 
-  }, 2500);
+  }, 1800);
 })
 
+setInterval(() => {
+  io.emit('data', items);
+}, 5e3);
 
 coinex.on('symbolResult', res => {
   var { symbol, result: data } = res;
@@ -67,8 +74,26 @@ coinex.on('symbolResult', res => {
     .forEach(key => {
       items[symbol][key + data.period] = data[key];
     })
+})
 
-  io.emit('data', items);
+coinex.on('dealsResult', res => {
+  var { symbol, result: data } = res;
+  items[symbol]["buys"] = items[symbol]["buys"] || 0;
+  items[symbol]["sells"] = items[symbol]["sells"] || 0;
+  items[symbol]["buysCount"] = items[symbol]["buysCount"] || 0;
+  items[symbol]["sellsCount"] = items[symbol]["sellsCount"] || 0;
+
+  data.forEach(deal => {
+    if (deal.type == 'sell') {
+      items[symbol]["sellsCount"] = items[symbol]["sellsCount"] + 1;
+      items[symbol]["sells"] += +deal.amount;
+    }
+
+    if (deal.type == 'buy')
+      items[symbol]["buysCount"] = items[symbol]["buysCount"] + 1;
+      items[symbol]["buys"] += +deal.amount;
+  })
+
 })
 
 /* GET home page. */
