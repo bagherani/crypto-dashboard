@@ -28,10 +28,15 @@ th {
   font-weight: normal;
 }
 
+td.bg-light {
+  background-color: #eee !important;
+}
+
 .symbol-name {
   font-size: 13px;
   font-weight: bold;
 }
+
 .symbol-name span {
   color: #999;
   font-size: 12px;

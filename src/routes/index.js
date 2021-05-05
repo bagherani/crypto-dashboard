@@ -15,6 +15,10 @@ var items = {};
 
 coinex.getMarketSymbols();
 
+setInterval(() => {
+  coinex.getMarketSymbols();
+}, 36e5);
+
 coinex.on('symbols', data => {
   symbols = data;
 
@@ -33,35 +37,39 @@ coinex.on('connected', () => {
     if (symbols.length > 0) {
       var symbol = symbols[counter];
 
-      coinex.querySymbol(symbol, 900);
+      coinex.querySymbol(symbol, 300);
 
       setTimeout(() => {
-        coinex.querySymbol(symbol, 1200);
+        coinex.querySymbol(symbol, 900);
       }, 300);
 
       setTimeout(() => {
-        coinex.querySymbol(symbol, 3600);
+        coinex.querySymbol(symbol, 1800);
       }, 600);
 
       setTimeout(() => {
-        coinex.querySymbol(symbol, 7200);
+        coinex.querySymbol(symbol, 3600);
       }, 900);
 
       setTimeout(() => {
-        coinex.querySymbol(symbol, 86400);
+        coinex.querySymbol(symbol, 7200);
       }, 1200);
+
+      setTimeout(() => {
+        coinex.querySymbol(symbol, 86400);
+      }, 1500);
 
 
       setTimeout(() => {
         coinex.queryDeals(symbol);
-      }, 1200);
+      }, 1800);
     }
 
     counter++;
     if (counter > symbols.length)
       counter = 0;
 
-  }, 1800);
+  }, 2100);
 })
 
 setInterval(() => {
@@ -91,7 +99,7 @@ coinex.on('dealsResult', res => {
 
     if (deal.type == 'buy')
       items[symbol]["buysCount"] = items[symbol]["buysCount"] + 1;
-      items[symbol]["buys"] += +deal.amount;
+    items[symbol]["buys"] += +deal.amount;
   })
 
 })

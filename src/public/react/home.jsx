@@ -8,7 +8,7 @@ class Home extends React.Component {
       items: [],
       sortField: "",
       sortDir: false,
-      filter: { symbolType: "USDT", deal24GT: 5e4, deal1GT: 0, deal2GT: 0 },
+      filter: { symbolType: "USDT", symbol: '', deal24GT: 5e4, deal1GT: 0, deal2GT: 0 },
     };
 
     this.pairs = ["USDT", "BCH", "ETH", "BTC"];
@@ -30,6 +30,33 @@ class Home extends React.Component {
             });
           }
         });
+
+        items.forEach(item => {
+          var m15 = +item.deal900 - +item.deal300;
+          var m30 = +item.deal1800 - +item.deal900;
+          var h1 = +item.deal3600 - +item.deal1800;
+          var h2 = +item.deal7200 - +item.deal3600;
+          var h24 = +item.deal86400 - +item.deal3600;
+
+
+
+          item.star = [];
+
+          if (+item.deal300 > m15) item.star.push('text-primary');
+          if (+item.deal900 > m30) item.star.push('text-info');
+          if (+item.deal1800 > h1) item.star.push('text-danger');
+          if (+item.deal3600 > h2) item.star.push('text-dark');
+
+          var mul = 1;
+          if (+item.deal3600 > 50e3 && +item.deal3600 < 100e3) mul = .80;
+          if (+item.deal3600 > 100e3 && +item.deal3600 < 500e3) mul = .60;
+          if (+item.deal3600 > 500e3 && +item.deal3600 < 1e6) mul = .40;
+          if (+item.deal3600 > 1e6 && +item.deal3600 < 10e6) mul = .3;
+          if (+item.deal3600 > 10e6) mul = .2;
+
+          if (h24 * mul < +item.deal3600)
+            item.star.push('text-warning');
+        })
 
         this.setState({ items });
       });
@@ -142,36 +169,39 @@ class Home extends React.Component {
     if (+row.deal7200 < +this.state.filter.deal2GT) return false;
     if (+row.deal3600 < +this.state.filter.deal1GT) return false;
 
+    if (this.state.filter.symbol.length > 0)
+      if (row.symbol.toLowerCase().indexOf(this.state.filter.symbol.toLowerCase()) == -1) return false;
+
     return true;
   }
 
   getCols() {
     const cols = [
       ["symbol", "symbol"],
-      
-      ["buys", "buys"],
+
+      ["star", "star"],
+
+      ["buys", "buys amount"],
+      ["sells", "sells amount"],
       ["buysCount", "buys count"],
-      ["sells", "sells"],
       ["sellsCount", "sells count"],
 
-      ["last86400", "last 24"],
-      ["volume86400", "vol 24"],
-      ["deal86400", "deals 24"],
-      ["last7200", "last 2H"],
+      ["volume86400", "vol 24H"],
+      ["deal86400", "value 24H"],
       ["volume7200", "vol 2H"],
-      ["deal7200", "deal 2H"],
+      ["deal7200", "value 2H"],
 
-      ["last3600", "last 1H"],
       ["volume3600", "vol 1H"],
-      ["deal3600", "deal 1H"],
+      ["deal3600", "value 1H"],
 
-      ["last1200", "last 30Min"],
-      ["volume1200", "vol 30Min"],
-      ["deal1200", "deal 30Min"],
+      ["volume1800", "vol 30Min"],
+      ["deal1800", "value 30Min"],
 
-      ["last900", "last 15Min"],
       ["volume900", "vol 15Min"],
-      ["deal900", "deal 15Min"],
+      ["deal900", "value 15Min"],
+
+      ["volume300", "vol 5Min"],
+      ["deal300", "value 5Min"],
     ];
 
     return cols.map((col) => (
@@ -204,6 +234,16 @@ class Home extends React.Component {
               <option value="ETH">ETH</option>
               <option value="BCH">BCH</option>
             </select>
+          </div>
+          <div className="col-md-2">
+            Search symbols
+            <input
+              type="search"
+              className="form-control"
+              name="symbol"
+              onChange={this.handleChange}
+              value={this.state.filter.symbol}
+            />
           </div>
           <div className="col-md-1">
             24H deals &gt;
@@ -248,54 +288,57 @@ class Home extends React.Component {
               {this.state.items.length == 0
                 ? null
                 : this.state.items
-                    .filter((x) => {
-                      return this.filter(x);
-                    })
-                    .map((x, $index) => (
-                      <tr key={x.symbol}>
-                        <td>{$index + 1}</td>
-                        <td className="text-nowrap">
-                          {this.formatSymbol(x.symbol)}
-                        </td>
+                  .filter((x) => {
+                    return this.filter(x);
+                  })
+                  .map((x, $index) => (
+                    <tr key={x.symbol}>
+                      <td>{$index + 1}</td>
+                      <td className="text-nowrap">
+                        {this.formatSymbol(x.symbol)}
+                      </td>
 
-                        <td>{this.formatNumber(x.buys)}</td>
-                        <td>{this.formatNumber(x.buysCount)}</td>
-                        <td>{this.formatNumber(x.sells)}</td>
-                        <td>{this.formatNumber(x.sellsCount)}</td>
+                      <td>{Array.isArray(x.star) && x.star.length > 0 ?
+                        x.star.map((q, i) => (<i key={i} className={"fa fa-star " + q}></i>))
+                        : null}
+                      </td>
 
-                        <td>{this.formatNumber(x.last86400)}</td>
-                        <td>{this.formatNumber(x.volume86400)}</td>
-                        <td>{this.formatNumber(x.deal86400)}</td>
+                      <td className="bg-light">{this.formatNumber(x.buys)}</td>
+                      <td className="bg-light">{this.formatNumber(x.sells)}</td>
+                      <td className="bg-light">{this.formatNumber(x.buysCount)}</td>
+                      <td className="bg-light">{this.formatNumber(x.sellsCount)}</td>
 
-                        <td className="bg-light">{x.last7200}</td>
-                        <td className="bg-light">
-                          {this.formatNumber(x.volume7200)}
-                        </td>
-                        <td className="bg-light">
-                          {this.formatNumber(x.deal7200)}
-                        </td>
+                      < td > {this.formatNumber(x.volume86400)}</td>
+                      <td>{this.formatNumber(x.deal86400)}</td>
 
-                        <td>{x.last3600}</td>
-                        <td>{this.formatNumber(x.volume3600)}</td>
-                        <td>{this.formatNumber(x.deal3600)}</td>
+                      <td className="bg-light">
+                        {this.formatNumber(x.volume7200)}
+                      </td>
+                      <td className="bg-light">
+                        {this.formatNumber(x.deal7200)}
+                      </td>
 
-                        <td className="bg-light">{x.last1200}</td>
-                        <td className="bg-light">
-                          {this.formatNumber(x.volume1200)}
-                        </td>
-                        <td className="bg-light">
-                          {this.formatNumber(x.deal1200)}
-                        </td>
+                      <td>{this.formatNumber(x.volume3600)}</td>
+                      <td>{this.formatNumber(x.deal3600)}</td>
 
-                        <td>{x.last900}</td>
-                        <td>{this.formatNumber(x.volume900)}</td>
-                        <td>{this.formatNumber(x.deal900)}</td>
-                      </tr>
-                    ))}
+                      <td className="bg-light">
+                        {this.formatNumber(x.volume1800)}
+                      </td>
+                      <td className="bg-light">
+                        {this.formatNumber(x.deal1800)}
+                      </td>
+
+                      <td>{this.formatNumber(x.volume900)}</td>
+                      <td>{this.formatNumber(x.deal900)}</td>
+
+                      <td className="bg-light">{this.formatNumber(x.volume300)}</td>
+                      <td className="bg-light">{this.formatNumber(x.deal300)}</td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
-        </div>
-      </div>
+        </div >
+      </div >
     );
   }
 }
