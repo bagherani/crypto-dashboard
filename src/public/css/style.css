@@ -28,6 +28,20 @@ th {
   font-weight: normal;
 }
 
+td i:not(:last-child) {
+  margin-right: 5px;
+  display: inline-block;
+}
+
+td i.text-light {
+  color: #bbb !important;
+}
+
+td i.text-danger {
+  font-weight: bold;
+  font-style: normal;
+}
+
 td.bg-light {
   background-color: #eee !important;
 }

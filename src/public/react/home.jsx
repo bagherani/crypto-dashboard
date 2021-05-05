@@ -8,7 +8,13 @@ class Home extends React.Component {
       items: [],
       sortField: "",
       sortDir: false,
-      filter: { symbolType: "USDT", symbol: '', deal24GT: 5e4, deal1GT: 0, deal2GT: 0 },
+      filter: {
+        symbolType: "USDT",
+        symbol: "",
+        deal24GT: 5e4,
+        deal1GT: 0,
+        deal2GT: 0,
+      },
     };
 
     this.pairs = ["USDT", "BCH", "ETH", "BTC"];
@@ -31,32 +37,37 @@ class Home extends React.Component {
           }
         });
 
-        items.forEach(item => {
+        items.forEach((item) => {
           var m15 = +item.deal900 - +item.deal300;
           var m30 = +item.deal1800 - +item.deal900;
           var h1 = +item.deal3600 - +item.deal1800;
           var h2 = +item.deal7200 - +item.deal3600;
           var h24 = +item.deal86400 - +item.deal3600;
 
-
-
           item.star = [];
 
-          if (+item.deal300 > m15) item.star.push('text-primary');
-          if (+item.deal900 > m30) item.star.push('text-info');
-          if (+item.deal1800 > h1) item.star.push('text-danger');
-          if (+item.deal3600 > h2) item.star.push('text-dark');
+          if (+item.deal300 > m15) item.star.push("m5-ok");
+          else item.star.push("m5-x");
+
+          if (+item.deal900 > m30) item.star.push("m15-ok");
+          else item.star.push("m15-x");
+
+          if (+item.deal1800 > h1) item.star.push("m13-ok");
+          else item.star.push("m30-x");
+
+          if (+item.deal3600 > h2) item.star.push("h1-ok");
+          else item.star.push("h1-x");
 
           var mul = 1;
-          if (+item.deal3600 > 50e3 && +item.deal3600 < 100e3) mul = .80;
-          if (+item.deal3600 > 100e3 && +item.deal3600 < 500e3) mul = .60;
-          if (+item.deal3600 > 500e3 && +item.deal3600 < 1e6) mul = .40;
-          if (+item.deal3600 > 1e6 && +item.deal3600 < 10e6) mul = .3;
-          if (+item.deal3600 > 10e6) mul = .2;
+          if (+item.deal3600 > 50e3 && +item.deal3600 < 100e3) mul = 0.8;
+          if (+item.deal3600 > 100e3 && +item.deal3600 < 500e3) mul = 0.6;
+          if (+item.deal3600 > 500e3 && +item.deal3600 < 1e6) mul = 0.4;
+          if (+item.deal3600 > 1e6 && +item.deal3600 < 10e6) mul = 0.3;
+          if (+item.deal3600 > 10e6) mul = 0.2;
 
-          if (h24 * mul < +item.deal3600)
-            item.star.push('text-warning');
-        })
+          if (h24 * mul < +item.deal3600) item.star.push("d1-ok");
+          else item.star.push("d1-x");
+        });
 
         this.setState({ items });
       });
@@ -82,11 +93,12 @@ class Home extends React.Component {
   formatNumber(num) {
     if (isNaN(num)) return "";
 
-    if (num > 1e9) return parseInt(num / 1e9).toLocaleString() + "B";
-    if (num > 1e6) return parseInt(num / 1e6).toLocaleString() + "M";
-    if (num > 1e3) return parseInt(num / 1e3).toLocaleString() + "K";
     if (num < 1) return num.toString();
-    return parseInt(num).toLocaleString();
+
+    if (num > 1e9) return (num / 1e9).toFixed("1") + "B";
+    if (num > 1e6) return (num / 1e6).toFixed("1") + "M";
+    if (num > 1e3) return (num / 1e3).toFixed("1") + "K";
+    return (+num).toFixed("1");
   }
 
   formatSymbol(value) {
@@ -132,11 +144,20 @@ class Home extends React.Component {
 
     items = items.sort((a, b) => {
       if (col == "symbol") {
-        if (asc) return a[col] > b[col] ? -1 : 1;
-        else return a[col] > b[col] ? 1 : -1;
+        return a[col] > b[col] ? (asc ? -1 : 1) : asc ? 1 : -1;
+      } else if (col == "star") {
+        return a[col].filter((x) => x.indexOf("-ok") > -1).length -
+          b[col].filter((x) => x.indexOf("-ok") > -1).length >
+          0
+          ? asc
+            ? -1
+            : 1
+          : asc
+          ? 1
+          : -1;
       } else {
-        if (!asc) return +a[col] - +b[col];
-        else return +b[col] - +a[col];
+        if (!asc) return (+a[col] || 0) - (+b[col] || 0) > 0 ? 1 : -1;
+        else return (+b[col] || 0) - (+a[col] || 0) > 0 ? 1 : -1;
       }
     });
 
@@ -170,7 +191,12 @@ class Home extends React.Component {
     if (+row.deal3600 < +this.state.filter.deal1GT) return false;
 
     if (this.state.filter.symbol.length > 0)
-      if (row.symbol.toLowerCase().indexOf(this.state.filter.symbol.toLowerCase()) == -1) return false;
+      if (
+        row.symbol
+          .toLowerCase()
+          .indexOf(this.state.filter.symbol.toLowerCase()) == -1
+      )
+        return false;
 
     return true;
   }
@@ -214,6 +240,28 @@ class Home extends React.Component {
         ) : null}
       </th>
     ));
+  }
+
+  getStar(x) {
+    if (!Array.isArray(x.star) || x.star.length == 0) return null;
+
+    return x.star.map((star, i) => {
+      if (star.indexOf("-ok") > -1)
+        return (
+          <i
+            key={i}
+            className={star.indexOf("d1") > -1 ? "text-warning" : "text-danger"}
+          >
+            {star.replace("-ok", "")}
+          </i>
+        );
+      else
+        return (
+          <i key={i} className="text-light">
+            {star.replace("-x", "")}
+          </i>
+        );
+    });
   }
 
   render() {
@@ -288,57 +336,66 @@ class Home extends React.Component {
               {this.state.items.length == 0
                 ? null
                 : this.state.items
-                  .filter((x) => {
-                    return this.filter(x);
-                  })
-                  .map((x, $index) => (
-                    <tr key={x.symbol}>
-                      <td>{$index + 1}</td>
-                      <td className="text-nowrap">
-                        {this.formatSymbol(x.symbol)}
-                      </td>
+                    .filter((x) => {
+                      return this.filter(x);
+                    })
+                    .map((x, $index) => (
+                      <tr key={x.symbol}>
+                        <td>{$index + 1}</td>
+                        <td className="text-nowrap">
+                          {this.formatSymbol(x.symbol)}
+                        </td>
 
-                      <td>{Array.isArray(x.star) && x.star.length > 0 ?
-                        x.star.map((q, i) => (<i key={i} className={"fa fa-star " + q}></i>))
-                        : null}
-                      </td>
+                        <td>{this.getStar(x)}</td>
 
-                      <td className="bg-light">{this.formatNumber(x.buys)}</td>
-                      <td className="bg-light">{this.formatNumber(x.sells)}</td>
-                      <td className="bg-light">{this.formatNumber(x.buysCount)}</td>
-                      <td className="bg-light">{this.formatNumber(x.sellsCount)}</td>
+                        <td className="bg-light">
+                          {this.formatNumber(x.buys)}
+                        </td>
+                        <td className="bg-light">
+                          {this.formatNumber(x.sells)}
+                        </td>
+                        <td className="bg-light">
+                          {this.formatNumber(x.buysCount)}
+                        </td>
+                        <td className="bg-light">
+                          {this.formatNumber(x.sellsCount)}
+                        </td>
 
-                      < td > {this.formatNumber(x.volume86400)}</td>
-                      <td>{this.formatNumber(x.deal86400)}</td>
+                        <td> {this.formatNumber(x.volume86400)}</td>
+                        <td>{this.formatNumber(x.deal86400)}</td>
 
-                      <td className="bg-light">
-                        {this.formatNumber(x.volume7200)}
-                      </td>
-                      <td className="bg-light">
-                        {this.formatNumber(x.deal7200)}
-                      </td>
+                        <td className="bg-light">
+                          {this.formatNumber(x.volume7200)}
+                        </td>
+                        <td className="bg-light">
+                          {this.formatNumber(x.deal7200)}
+                        </td>
 
-                      <td>{this.formatNumber(x.volume3600)}</td>
-                      <td>{this.formatNumber(x.deal3600)}</td>
+                        <td>{this.formatNumber(x.volume3600)}</td>
+                        <td>{this.formatNumber(x.deal3600)}</td>
 
-                      <td className="bg-light">
-                        {this.formatNumber(x.volume1800)}
-                      </td>
-                      <td className="bg-light">
-                        {this.formatNumber(x.deal1800)}
-                      </td>
+                        <td className="bg-light">
+                          {this.formatNumber(x.volume1800)}
+                        </td>
+                        <td className="bg-light">
+                          {this.formatNumber(x.deal1800)}
+                        </td>
 
-                      <td>{this.formatNumber(x.volume900)}</td>
-                      <td>{this.formatNumber(x.deal900)}</td>
+                        <td>{this.formatNumber(x.volume900)}</td>
+                        <td>{this.formatNumber(x.deal900)}</td>
 
-                      <td className="bg-light">{this.formatNumber(x.volume300)}</td>
-                      <td className="bg-light">{this.formatNumber(x.deal300)}</td>
-                    </tr>
-                  ))}
+                        <td className="bg-light">
+                          {this.formatNumber(x.volume300)}
+                        </td>
+                        <td className="bg-light">
+                          {this.formatNumber(x.deal300)}
+                        </td>
+                      </tr>
+                    ))}
             </tbody>
           </table>
-        </div >
-      </div >
+        </div>
+      </div>
     );
   }
 }
