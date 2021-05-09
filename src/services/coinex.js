@@ -46,7 +46,7 @@ class Coinex extends EventEmitter {
         };
 
         this._client.onclose = (e) => {
-            console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason || e);
+            console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
             setTimeout(() => {
                 this.connect();
             }, 1000);
