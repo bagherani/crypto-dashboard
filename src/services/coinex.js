@@ -29,6 +29,7 @@ class Coinex extends EventEmitter {
         });
 
         this._client.onopen = () => {
+            console.log('opened.');
             this.emit('connected');
         };
 
@@ -45,7 +46,7 @@ class Coinex extends EventEmitter {
         };
 
         this._client.onclose = (e) => {
-            console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+            console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason || e);
             setTimeout(() => {
                 this.connect();
             }, 1000);
