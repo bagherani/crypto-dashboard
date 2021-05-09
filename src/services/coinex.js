@@ -3,6 +3,9 @@ const EventEmitter = require('events').EventEmitter;
 const axios = require('axios');
 
 class Coinex extends EventEmitter {
+    /**
+     * @type {WebSocket}
+     */
     _client;
     /**
      * @type {Array<string>}
@@ -68,34 +71,27 @@ class Coinex extends EventEmitter {
         var id = Object.keys(this.IDs).length + 1;
         if (this.IDs[id] == undefined)
             this.IDs[id] = symbol;
-        this._client.send(JSON.stringify({
-            "method": "deals.query",
-            "params": [symbol, 200, 0],
-            "id": id
-        }));
+
+
+        if (this._client.readyState == WebSocket.OPEN)
+            this._client.send(JSON.stringify({
+                "method": "deals.query",
+                "params": [symbol, 200, 0],
+                "id": id
+            }));
     }
 
     querySymbol(symbol, seconds) {
         var id = Object.keys(this.IDs).length + 1;
         if (this.IDs[id] == undefined)
             this.IDs[id] = symbol;
-        this._client.send(JSON.stringify({
-            "method": "state.query",
-            "params": [symbol, seconds],
-            "id": id
-        }));
-    }
 
-    _checkConnection(err) {
-        if (err) {
-            console.log('error in connecting to coinex websocket server.');
-            console.log('try reconnecting in 5 seconds...');
-            setTimeout(() => {
-                this._client.on('open', (ex) => { this._checkConnection(ex) });
-            }, 5000);
-        }
-        else
-            this.emit('connected');
+        if (this._client.readyState == WebSocket.OPEN)
+            this._client.send(JSON.stringify({
+                "method": "state.query",
+                "params": [symbol, seconds],
+                "id": id
+            }));
     }
 
 }
