@@ -19,7 +19,7 @@ class Home extends React.Component {
 
     this.pairs = ["USDT", "BCH", "ETH", "BTC"];
 
-    this.socket = io.connect("http://localhost:3004", {
+    this.socket = io.connect(window.location.origin.replace("3003","3004"), {
       reconnection: true,
     });
 

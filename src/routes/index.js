@@ -41,35 +41,34 @@ coinex.on('connected', () => {
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 900);
-      }, 300);
+      }, 160);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 1800);
-      }, 600);
+      }, 160 * 2);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 3600);
-      }, 900);
+      }, 160 * 3);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 7200);
-      }, 1200);
+      }, 160 * 4);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 86400);
-      }, 1500);
-
+      }, 160 * 5);
 
       setTimeout(() => {
         coinex.queryDeals(symbol);
-      }, 1800);
+      }, 160 * 6);
     }
 
     counter++;
     if (counter > symbols.length)
       counter = 0;
 
-  }, 2100);
+  }, 1000);
 })
 
 setInterval(() => {
