@@ -19,7 +19,7 @@ class Home extends React.Component {
 
     this.pairs = ["USDT", "BCH", "ETH", "BTC"];
 
-    this.socket = io.connect(window.location.origin.replace("3003","3004"), {
+    this.socket = io.connect(window.location.origin.replace("3003", "3004"), {
       reconnection: true,
     });
 
@@ -46,16 +46,20 @@ class Home extends React.Component {
 
           item.star = [];
 
-          if (+item.deal300 > m15) item.star.push("m5-ok");
+          if (+item.deal300 > m15 * 2) item.star.push("m5-ok2");
+          else if (+item.deal300 > m15) item.star.push("m5-ok");
           else item.star.push("m5-x");
 
-          if (+item.deal900 > m30) item.star.push("m15-ok");
+          if (+item.deal900 > m30 * 2) item.star.push("m15-ok2");
+          else if (+item.deal900 > m30) item.star.push("m15-ok");
           else item.star.push("m15-x");
 
-          if (+item.deal1800 > h1) item.star.push("m30-ok");
+          if (+item.deal1800 > h1 * 2) item.star.push("m30-ok2");
+          else if (+item.deal1800 > h1) item.star.push("m30-ok");
           else item.star.push("m30-x");
 
-          if (+item.deal3600 > h2) item.star.push("h1-ok");
+          if (+item.deal3600 > h2 * 2) item.star.push("h1-ok2");
+          else if (+item.deal3600 > h2) item.star.push("h1-ok");
           else item.star.push("h1-x");
 
           var mul = 1;
@@ -67,6 +71,17 @@ class Home extends React.Component {
 
           if (h24 * mul < +item.deal3600) item.star.push("d1-ok");
           else item.star.push("d1-x");
+
+          ["86400", "7200", "3600", "1800", "900", "300"].forEach(
+            (timeframe) => {
+              item["change" + timeframe] =
+                ((+item["close" + timeframe] - +item["open" + timeframe]) /
+                  Math.max(
+                    (+item["open" + timeframe], +item["close" + timeframe])
+                  )) *
+                100;
+            }
+          );
         });
 
         this.setState({ items });
@@ -99,6 +114,16 @@ class Home extends React.Component {
     if (num > 1e6) return (num / 1e6).toFixed("1") + "M";
     if (num > 1e3) return (num / 1e3).toFixed("1") + "K";
     return (+num).toFixed("1");
+  }
+
+  formatChange(value) {
+    if (!value) return null;
+
+    return (
+      <span className={value > 0 ? "text-success" : "text-danger"}>
+        {value.toFixed(2)}%
+      </span>
+    );
   }
 
   formatSymbol(value) {
@@ -207,31 +232,42 @@ class Home extends React.Component {
 
       ["star", "star"],
 
-      ["buys", "buys amount"],
-      ["sells", "sells amount"],
-      ["buysCount", "buys count"],
-      ["sellsCount", "sells count"],
+      ["buys", "buys amount", "group"],
+      ["sells", "sells amount", "group"],
+      ["buysCount", "buys count", "group"],
+      ["sellsCount", "sells count", "group"],
 
       ["volume86400", "vol 24H"],
       ["deal86400", "value 24H"],
-      ["volume7200", "vol 2H"],
-      ["deal7200", "value 2H"],
+      ["change86400", "D1"],
+
+      ["volume7200", "vol 2H", "group"],
+      ["deal7200", "value 2H", "group"],
+      ["change7200", "H2", "group"],
 
       ["volume3600", "vol 1H"],
       ["deal3600", "value 1H"],
+      ["change3600", "H1"],
 
-      ["volume1800", "vol 30Min"],
-      ["deal1800", "value 30Min"],
+      ["volume1800", "vol 30Min", "group"],
+      ["deal1800", "value 30Min", "group"],
+      ["change1800", "30M", "group"],
 
       ["volume900", "vol 15Min"],
       ["deal900", "value 15Min"],
+      ["change900", "15M"],
 
-      ["volume300", "vol 5Min"],
-      ["deal300", "value 5Min"],
+      ["volume300", "vol 5Min", "group"],
+      ["deal300", "value 5Min", "group"],
+      ["change300", "5M", "group"],
     ];
 
     return cols.map((col) => (
-      <th key={col[0]} onClick={(e) => this.handleSort(col[0])}>
+      <th
+        key={col[0]}
+        onClick={(e) => this.handleSort(col[0])}
+        className={col.length == 3 ? "group" : ""}
+      >
         {col[1]}
         {this.state.sortField == col[0] ? (
           <i
@@ -246,7 +282,13 @@ class Home extends React.Component {
     if (!Array.isArray(x.star) || x.star.length == 0) return null;
 
     return x.star.map((star, i) => {
-      if (star.indexOf("-ok") > -1)
+      if (star.indexOf("-ok2") > -1)
+        return (
+          <i key={i} className="text-warning">
+            {star.replace("-ok2", "")}
+          </i>
+        );
+      else if (star.indexOf("-ok") > -1)
         return (
           <i
             key={i}
@@ -276,11 +318,13 @@ class Home extends React.Component {
               value={this.state.filter.symbolType}
               onChange={this.handleChange}
             >
-              <option value="ALL">ALL</option>
+              <option value="ALL" disabled={true}>
+                ALL
+              </option>
               <option value="USDT">USDT</option>
-              <option value="BTC">BTC</option>
-              <option value="ETH">ETH</option>
-              <option value="BCH">BCH</option>
+              <option value="BTC" disabled={true}>BTC</option>
+              <option value="ETH" disabled={true}>ETH</option>
+              <option value="BCH" disabled={true}>BCH</option>
             </select>
           </div>
           <div className="col-md-2">
@@ -363,6 +407,7 @@ class Home extends React.Component {
 
                         <td> {this.formatNumber(x.volume86400)}</td>
                         <td>{this.formatNumber(x.deal86400)}</td>
+                        <td>{this.formatChange(x.change86400)}</td>
 
                         <td className="bg-light">
                           {this.formatNumber(x.volume7200)}
@@ -370,9 +415,13 @@ class Home extends React.Component {
                         <td className="bg-light">
                           {this.formatNumber(x.deal7200)}
                         </td>
+                        <td className="bg-light">
+                          {this.formatChange(x.change7200)}
+                        </td>
 
                         <td>{this.formatNumber(x.volume3600)}</td>
                         <td>{this.formatNumber(x.deal3600)}</td>
+                        <td>{this.formatChange(x.change3600)}</td>
 
                         <td className="bg-light">
                           {this.formatNumber(x.volume1800)}
@@ -380,15 +429,22 @@ class Home extends React.Component {
                         <td className="bg-light">
                           {this.formatNumber(x.deal1800)}
                         </td>
+                        <td className="bg-light">
+                          {this.formatChange(x.change1800)}
+                        </td>
 
                         <td>{this.formatNumber(x.volume900)}</td>
                         <td>{this.formatNumber(x.deal900)}</td>
+                        <td>{this.formatChange(x.change900)}</td>
 
                         <td className="bg-light">
                           {this.formatNumber(x.volume300)}
                         </td>
                         <td className="bg-light">
                           {this.formatNumber(x.deal300)}
+                        </td>
+                        <td className="bg-light">
+                          {this.formatChange(x.change300)}
                         </td>
                       </tr>
                     ))}

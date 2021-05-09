@@ -26,6 +26,15 @@ th {
   background: #dc3545 !important;
   color: #fff;
   font-weight: normal;
+  white-space: nowrap;
+}
+
+th.group{
+  background: #b62836 !important;
+}
+
+td{
+  white-space: nowrap;
 }
 
 td i:not(:last-child) {
@@ -38,6 +47,11 @@ td i.text-light {
 }
 
 td i.text-danger {
+  font-weight: bold;
+  font-style: normal;
+}
+
+td i.text-warning {
   font-weight: bold;
   font-style: normal;
 }
