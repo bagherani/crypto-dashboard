@@ -52,7 +52,7 @@ class Home extends React.Component {
           if (+item.deal900 > m30) item.star.push("m15-ok");
           else item.star.push("m15-x");
 
-          if (+item.deal1800 > h1) item.star.push("m13-ok");
+          if (+item.deal1800 > h1) item.star.push("m30-ok");
           else item.star.push("m30-x");
 
           if (+item.deal3600 > h2) item.star.push("h1-ok");
