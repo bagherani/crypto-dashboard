@@ -47,16 +47,22 @@ class Home extends React.Component {
 
           item.star = [];
 
-          item.buyersPower = (
-            +item.buys /
-            +item.buysCount /
-            (+item.sells / +item.sellsCount)
-          ).toFixed(2);
-          item.sellersPower = (
-            +item.sells /
-            +item.sellsCount /
-            (+item.buys / +item.buysCount)
-          ).toFixed(2);
+          item.buyersPower = "0";
+          if (item.buys && item.buysCount && item.sells && item.sellsCount)
+            item.buyersPower = (
+              +item.buys /
+              +item.buysCount /
+              (+tem.sells / +item.sellsCount)
+            ).toFixed(2);
+
+          item.sellersPower = "0";
+
+          if (item.buys && item.buysCount && item.sells && item.sellsCount)
+            item.sellersPower = (
+              +item.sells /
+              +item.sellsCount /
+              (+item.buys / +item.buysCount)
+            ).toFixed(2);
 
           // m5 value is GT than 24h value
           item.m5OnFire = 0;
@@ -442,7 +448,7 @@ class Home extends React.Component {
                           {this.formatNumber(x.sells)}
                         </td>
 
-                        <td> {x.buyersPower}</td>
+                        <td>{x.buyersPower}</td>
                         <td>{x.sellersPower}</td>
 
                         <td
