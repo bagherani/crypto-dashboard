@@ -43,8 +43,24 @@ class Home extends React.Component {
           var h1 = +item.deal3600 - +item.deal1800;
           var h2 = +item.deal7200 - +item.deal3600;
           var h24 = +item.deal86400 - +item.deal3600;
+          var h24_m5 = +item.deal86400 - +item.deal300;
 
           item.star = [];
+
+          item.buyersPower = (
+            +item.buys /
+            +item.buysCount /
+            (+item.sells / +item.sellsCount)
+          ).toFixed(2);
+          item.sellersPower = (
+            +item.sells /
+            +item.sellsCount /
+            (+item.buys / +item.buysCount)
+          ).toFixed(2);
+
+          // m5 value is GT than 24h value
+          item.m5OnFire = 0;
+          if (+item.deal300 > h24_m5) item.m5OnFire = 1;
 
           if (+item.deal300 > m15 * 2) item.star.push("m5-ok2");
           else if (+item.deal300 > m15) item.star.push("m5-ok");
@@ -84,7 +100,7 @@ class Home extends React.Component {
           );
         });
 
-        this.setState({ items });
+        this.handleSort(items);
       });
     });
 
@@ -157,15 +173,18 @@ class Home extends React.Component {
     this.setState({ filter });
   }
 
-  handleSort(col) {
+  handleSort(d) {
+    var col = typeof d == "string" ? d : this.state.sortField;
     var asc = this.state.sortDir;
 
-    if (this.state.sortField == col) {
-      asc = !asc;
-      this.setState({ sortDir: asc });
-    } else this.setState({ sortField: col });
+    if (typeof d === "string") {
+      if (this.state.sortField == col) {
+        asc = !asc;
+        this.setState({ sortDir: asc });
+      } else this.setState({ sortField: col });
+    }
 
-    var items = [...this.state.items];
+    var items = typeof d === "string" ? [...this.state.items] : d;
 
     items = items.sort((a, b) => {
       if (col == "symbol") {
@@ -230,10 +249,15 @@ class Home extends React.Component {
     const cols = [
       ["symbol", "symbol"],
 
+      ["m5OnFire", "golden M5"],
       ["star", "star"],
 
       ["buys", "buys amount", "group"],
       ["sells", "sells amount", "group"],
+
+      ["buyersPower", "buyers power"],
+      ["sellersPower", "sellers power"],
+
       ["buysCount", "buys count", "group"],
       ["sellsCount", "sells count", "group"],
 
@@ -396,6 +420,7 @@ class Home extends React.Component {
                           {this.formatSymbol(x.symbol)}
                         </td>
 
+                        <td>{x.m5OnFire == 1 ? "M5⭐" : null}</td>
                         <td>{this.getStar(x)}</td>
 
                         <td
@@ -416,6 +441,10 @@ class Home extends React.Component {
                         >
                           {this.formatNumber(x.sells)}
                         </td>
+
+                        <td> {x.buyersPower}</td>
+                        <td>{x.sellersPower}</td>
+
                         <td
                           className={
                             +x.buysCount > +x.sellsCount
