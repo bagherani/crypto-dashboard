@@ -77,10 +77,11 @@ setInterval(() => {
 
 coinex.on('symbolResult', res => {
   var { symbol, result: data } = res;
-  Object.keys(data)
-    .forEach(key => {
-      items[symbol][key + data.period] = data[key];
-    })
+  if (typeof data === 'object')
+    Object.keys(data)
+      .forEach(key => {
+        items[symbol][key + data.period] = data[key];
+      })
 })
 
 coinex.on('dealsResult', res => {
