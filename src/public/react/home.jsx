@@ -52,7 +52,7 @@ class Home extends React.Component {
             item.buyersPower = (
               +item.buys /
               +item.buysCount /
-              (+tem.sells / +item.sellsCount)
+              (+item.sells / +item.sellsCount)
             ).toFixed(2);
 
           item.sellersPower = "0";
