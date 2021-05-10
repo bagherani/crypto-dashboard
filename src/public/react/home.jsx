@@ -322,9 +322,15 @@ class Home extends React.Component {
                 ALL
               </option>
               <option value="USDT">USDT</option>
-              <option value="BTC" disabled={true}>BTC</option>
-              <option value="ETH" disabled={true}>ETH</option>
-              <option value="BCH" disabled={true}>BCH</option>
+              <option value="BTC" disabled={true}>
+                BTC
+              </option>
+              <option value="ETH" disabled={true}>
+                ETH
+              </option>
+              <option value="BCH" disabled={true}>
+                BCH
+              </option>
             </select>
           </div>
           <div className="col-md-2">
@@ -392,16 +398,40 @@ class Home extends React.Component {
 
                         <td>{this.getStar(x)}</td>
 
-                        <td className="bg-light">
+                        <td
+                          className={
+                            +x.buys > +x.sells
+                              ? "bg-light text-primary"
+                              : "bg-light text-danger"
+                          }
+                        >
                           {this.formatNumber(x.buys)}
                         </td>
-                        <td className="bg-light">
+                        <td
+                          className={
+                            +x.buys < +x.sells
+                              ? "bg-light text-primary"
+                              : "bg-light text-danger"
+                          }
+                        >
                           {this.formatNumber(x.sells)}
                         </td>
-                        <td className="bg-light">
+                        <td
+                          className={
+                            +x.buysCount > +x.sellsCount
+                              ? "bg-light text-primary"
+                              : "bg-light text-danger"
+                          }
+                        >
                           {this.formatNumber(x.buysCount)}
                         </td>
-                        <td className="bg-light">
+                        <td
+                          className={
+                            +x.buysCount < +x.sellsCount
+                              ? "bg-light text-primary"
+                              : "bg-light text-danger"
+                          }
+                        >
                           {this.formatNumber(x.sellsCount)}
                         </td>
 
