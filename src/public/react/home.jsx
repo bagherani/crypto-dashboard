@@ -43,7 +43,7 @@ class Home extends React.Component {
           var h1 = +item.deal3600 - +item.deal1800;
           var h2 = +item.deal7200 - +item.deal3600;
           var h24 = +item.deal86400 - +item.deal3600;
-          var h24_m5 = +item.deal86400 - +item.deal300;
+          var h1_m5 = +item.deal3600 - +item.deal300;
 
           item.star = [];
 
@@ -66,7 +66,7 @@ class Home extends React.Component {
 
           // m5 value is GT than 24h value
           item.m5OnFire = 0;
-          if (+item.deal300 > h24_m5) item.m5OnFire = 1;
+          if (+item.deal300 > h1_m5) item.m5OnFire = 1;
 
           if (+item.deal300 > m15 * 2) item.star.push("m5-ok2");
           else if (+item.deal300 > m15) item.star.push("m5-ok");
