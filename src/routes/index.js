@@ -32,6 +32,7 @@ coinex.on('connected', () => {
     clearInterval(marketInterval);
 
   var counter = 0;
+  var delay = 50;
   marketInterval = setInterval(() => {
 
     if (symbols.length > 0) {
@@ -41,34 +42,34 @@ coinex.on('connected', () => {
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 900);
-      }, 160);
+      }, delay);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 1800);
-      }, 160 * 2);
+      }, delay * 2);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 3600);
-      }, 160 * 3);
+      }, delay * 3);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 7200);
-      }, 160 * 4);
+      }, delay * 4);
 
       setTimeout(() => {
         coinex.querySymbol(symbol, 86400);
-      }, 160 * 5);
+      }, delay * 5);
 
       setTimeout(() => {
         coinex.queryDeals(symbol);
-      }, 160 * 6);
+      }, delay * 6);
     }
 
     counter++;
     if (counter > symbols.length)
       counter = 0;
 
-  }, 1000);
+  }, delay * 7);
 })
 
 setInterval(() => {
