@@ -38,6 +38,7 @@ class Home extends React.Component {
         });
 
         items.forEach((item) => {
+          var m5 = +item.deal300 - +item.deal60;
           var m15 = +item.deal900 - +item.deal300;
           var m30 = +item.deal1800 - +item.deal900;
           var h1 = +item.deal3600 - +item.deal1800;
@@ -64,9 +65,17 @@ class Home extends React.Component {
               (+item.buys / +item.buysCount)
             ).toFixed(2);
 
+          // m1 value is GT than M5 value
+          item.m1OnFire = 0;
+          if (+item.deal60 > m5) item.m1OnFire = 1;
+
           // m5 value is GT than 24h value
           item.m5OnFire = 0;
           if (+item.deal300 > h1_m5) item.m5OnFire = 1;
+
+          if (+item.deal60 > m5 * 2) item.star.push("m1-ok2");
+          else if (+item.deal60 > m5) item.star.push("m1-ok");
+          else item.star.push("m1-x");
 
           if (+item.deal300 > m15 * 2) item.star.push("m5-ok2");
           else if (+item.deal300 > m15) item.star.push("m5-ok");
@@ -94,7 +103,7 @@ class Home extends React.Component {
           if (h24 * mul < +item.deal3600) item.star.push("d1-ok");
           else item.star.push("d1-x");
 
-          ["86400", "7200", "3600", "1800", "900", "300"].forEach(
+          ["86400", "7200", "3600", "1800", "900", "300", "60"].forEach(
             (timeframe) => {
               item["change" + timeframe] =
                 ((+item["close" + timeframe] - +item["open" + timeframe]) /
@@ -256,6 +265,7 @@ class Home extends React.Component {
       ["symbol", "symbol"],
 
       ["m5OnFire", "golden M5"],
+      ["m1OnFire", "golden M1"],
       ["star", "star"],
 
       ["buys", "buys amount", "group"],
@@ -290,6 +300,10 @@ class Home extends React.Component {
       ["volume300", "vol 5Min", "group"],
       ["deal300", "value 5Min", "group"],
       ["change300", "5M", "group"],
+
+      ["volume60", "vol 1Min", "group"],
+      ["deal60", "value 1Min", "group"],
+      ["change60", "1M", "group"],
     ];
 
     return cols.map((col) => (
@@ -427,6 +441,7 @@ class Home extends React.Component {
                         </td>
 
                         <td>{x.m5OnFire == 1 ? "M5⭐" : null}</td>
+                        <td>{x.m1OnFire == 1 ? "M1⭐" : null}</td>
                         <td>{this.getStar(x)}</td>
 
                         <td
@@ -511,6 +526,10 @@ class Home extends React.Component {
                         <td className="bg-light">
                           {this.formatChange(x.change300)}
                         </td>
+
+                        <td>{this.formatNumber(x.volume60)}</td>
+                        <td>{this.formatNumber(x.deal60)}</td>
+                        <td>{this.formatChange(x.change60)}</td>
                       </tr>
                     ))}
             </tbody>
